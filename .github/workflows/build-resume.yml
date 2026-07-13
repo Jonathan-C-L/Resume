@@ -31,13 +31,13 @@ jobs:
 
       - name: Rename output (optional, keeps a stable filename)
         run: mv JonathanL_Resume.pdf resume.pdf
-      
+
       - name: Install poppler-utils (for PDF -> PNG conversion)
         run: sudo apt-get update && sudo apt-get install -y poppler-utils
-      
+
       - name: Generate PNG preview of resume (for README embedding)
         run: |
-            pdftoppm -png -r 200 -singlefile resume.pdf resume-preview
+          pdftoppm -png -r 200 -singlefile resume.pdf resume-preview
 
       - name: Commit updated PDF and preview image
         uses: stefanzweifel/git-auto-commit-action@v5
