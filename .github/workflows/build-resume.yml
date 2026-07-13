@@ -1,0 +1,52 @@
+name: Build Resume
+
+# Trigger the workflow whenever the .tex file changes on the main branch,
+# and also allow manually triggering it from the Actions tab.
+on:
+  push:
+    branches: [main]
+    paths:
+      - "**/*.tex"
+      - ".github/workflows/build-resume.yml"
+  workflow_dispatch:
+
+# Allow this workflow to push commits back to the repo
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Compile LaTeX resume
+        uses: xu-cheng/latex-action@v3
+        with:
+          # Update this path if your .tex file lives in a subfolder
+          root_file: JonathanL_Resume.tex
+          # Uncomment and adjust if the output should go somewhere specific
+          # work_in_root_file_dir: true
+
+      - name: Rename output (optional, keeps a stable filename)
+        run: mv JonathanL_Resume.pdf resume.pdf
+      
+      - name: Install poppler-utils (for PDF -> PNG conversion)
+        run: sudo apt-get update && sudo apt-get install -y poppler-utils
+      
+      - name: Generate PNG preview of resume (for README embedding)
+        run: |
+            pdftoppm -png -r 200 -singlefile resume.pdf resume-preview
+
+      - name: Commit updated PDF and preview image
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "chore: auto-build resume PDF + preview [skip ci]"
+          file_pattern: "*.pdf *.png"
+
+      - name: Upload PDF as workflow artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: resume-pdf
+          path: resume.pdf
