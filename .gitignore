@@ -5,3 +5,7 @@
 *.out
 *.pdf
 *.synctex.gz
+
+# Allow the built resume artifacts to be committed despite the *.pdf/*.png ignore rules above
+!resume.pdf
+!resume-preview.png
