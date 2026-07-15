@@ -44,3 +44,35 @@ jobs:
         with:
           name: resume-pdf
           path: resume.pdf
+
+  deploy-to-portfolio:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout resume repo
+        uses: actions/checkout@v4
+        with:
+          path: Resume
+
+      - name: Checkout portfolio repo
+        uses: actions/checkout@v4
+        with:
+          repository: Jonathan-C-L/portfolio-page
+          token: ${{ secrets.PORTFOLIO_PAT }}
+          path: portfolio-page
+
+      - name: Copy resume files into portfolio assets folder  
+        run: |
+          mkdir -p portfolio-page/assets
+          cp Resume/resume.pdf portfolio-page/assets/resume.pdf
+          cp Resume/resume-preview.png portfolio-page/assets/resume-preview.png
+
+      - name: Commit and push to portfolio-page
+        working-directory: portfolio-page
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add assets/resume.pdf assets/resume-preview.png
+          git diff --staged --quiet && echo "No changes to commit" || git commit -m "chore: sync latest resume from resume repo [skip ci]"
+          git push
+      
